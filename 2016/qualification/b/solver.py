@@ -2,7 +2,7 @@ def main():
     cases = parse_input()
 
     for i, stack in cases:
-        r = solve(stack)
+        r = solve3(stack)
         print(f'Case #{i}: {r}')
 
 
@@ -27,6 +27,27 @@ def solve(stack, target=+1):
         return solve(stack[:-1], target=target)
     else:
         return solve(stack[:-1], target=-target) + 1
+
+
+def solve2(stack, target=+1, count=0):
+    if len(stack) == 0:
+        return count
+    if stack[-1] == target:
+        return solve2(stack[:-1], target=target, count=count)
+    else:
+        return solve2(stack[:-1], target=-target, count=count + 1)
+
+
+def solve3(stack):
+    target = +1
+    count = 0
+    last_index = len(stack) - 1
+    while last_index >= 0:
+        if stack[last_index] != target:
+            count += 1
+            target *= -1
+        last_index -= 1
+    return count
 
 
 if __name__ == '__main__':
