@@ -1,10 +1,10 @@
 import random
 import sympy.ntheory as nt
 
-# from io import StringIO
-# import sys
+from io import StringIO
+import sys
 # sys.stdin = StringIO('''1
-# 16 50''')
+# 32 1''')
 
 
 def main():
@@ -27,10 +27,13 @@ def parse_input():
 
 def solve(N, J):
     results = {}
+    i = 0
     while len(results) < J:
+        print(f'#{i}', file=sys.stderr)
         a, nums = find(N)
         divisors = [get_divisor(x) for x in nums]
         results[a] = divisors
+        i += 1
     return results
 
 
@@ -55,11 +58,13 @@ def as_base(string, base):
 
 
 def get_divisor(num):
-    for d in nt.divisors(num, generator=True):
-        if d not in [1, num]:
-            return d
-    else:
-        raise ValueError('num is prime')
+    print(f'get_divisor({num})', file=sys.stderr)
+    return nt.pollard_rho(num)
+    # for d in nt.divisors(num, generator=True):
+    #     if d not in [1, num]:
+    #         return d
+    # else:
+    #     raise ValueError('num is prime')
 
 
 if __name__ == '__main__':
