@@ -1,6 +1,5 @@
 from io import StringIO
 import sys
-import numpy as np
 
 import warnings
 
@@ -31,32 +30,23 @@ def parse_input():
     T = int(input())
     for i in range(1, T + 1):
         D = int(input())
-        Ps = np.array([int(x) for x in input().split()])
+        Ps = [int(x) for x in input().split()]
         if D != len(Ps):
             raise AssertionError('unexpected')
         yield i, Ps
 
 
 def solve(Ps):
-    m_index = np.argmax(Ps)
-    m = Ps[m_index]
-
-    if m <= 3:
-        return m
-
-    split(Ps, m_index)
-    return min(solve(Ps) + 1, m)
+    m = max(Ps)
+    rs = []
+    for n in range(1, m + 1):
+        r = n + sum(ceildiv(x, n) - 1 for x in Ps)
+        rs.append(r)
+    return min(rs)
 
 
-def split(Ps, i):
-    half = Ps[i] // 2
-    Ps[i] -= half
-    np.append(Ps, half)
-
-
-def eat(Ps):
-    Ps -= 1
-    return np.delete(Ps, Ps == 0)
+def ceildiv(a, b):
+    return -(-a // b)
 
 
 if __name__ == '__main__':
