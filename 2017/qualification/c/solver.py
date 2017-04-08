@@ -1,4 +1,4 @@
-import numpy as np
+from heapq import heappush, heappop
 from io import StringIO
 import sys
 
@@ -30,14 +30,14 @@ def parse_input():
 
 
 def solve(N, K):
-    chunks = np.array([N])
+    chunks = [-N]
     for _ in range(K):
-        i = np.argmax(chunks)
-        c = chunks[i] - 1
+        c = -heappop(chunks)
+        c -= 1
         a = c // 2
         b = c - a
-        chunks[i] = a
-        chunks = np.insert(chunks, i + 1, b)
+        heappush(chunks, -a)
+        heappush(chunks, -b)
     return sorted([a, b], reverse=True)
 
 if __name__ == '__main__':
