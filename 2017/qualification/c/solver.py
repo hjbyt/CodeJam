@@ -1,22 +1,16 @@
-from heapq import heappush, heappop
 from io import StringIO
 import sys
 
-# TEST = '''\
-# 5
-# 4 2
-# 5 2
-# 6 2
-# 1000 1000
-# 1000 1
-# '''
 TEST = '''\
-1
-999999999999999995 30303030303030303
+5
+4 2
+5 2
+6 2
+1000 1000
+1000 1
 '''
 
-
-sys.stdin = StringIO(TEST)
+# sys.stdin = StringIO(TEST)
 
 
 def main():
@@ -58,10 +52,8 @@ def solve(N, K):
     else:
         if k % 2 == 0:
             return solve(a, ka)
-
-        sa = solve(a, ka)
-        sb = solve(b, kb)
-        return min([sa, sb], key=lambda x: (x[1], x[0]))
+        else:
+            return solve(b, kb)
 
 
 if __name__ == '__main__':
