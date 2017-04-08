@@ -14,7 +14,12 @@ x 3 1
 + 2 2
 '''
 
-sys.stdin = StringIO(TEST)
+# TEST = '''\
+# 1
+# 100 0
+# '''
+
+# sys.stdin = StringIO(TEST)
 
 c2v = {
     '.': 0,
@@ -28,10 +33,12 @@ def main():
     cases = parse_input()
 
     for i, b in cases:
-        r = solve(b)
-        b, s = r
-        print(f'Case #{i}: {s}')
-        print(b)
+        new_b, s = solve2(np.copy(b))
+        changes = diff_boards(b, new_b)
+        print(f'Case #{i}: {s} {len(changes)}')
+        for change in changes:
+            print(' '.join(str(x) for x in change))
+        # print('\n' + board_string(new_b))
 
 
 def parse_input():
@@ -88,7 +95,7 @@ def check(b, i, j):
             O = False
             break
 
-    for x, y in diag_points__(i, j, N):
+    for x, y in diag_points(i, j, N):
         if b[x, y] in ['+', 'o']:
             P = False
             O = False
@@ -104,7 +111,7 @@ def check(b, i, j):
     return r
 
 
-def diag_points__(i, j, N):
+def diag_points(i, j, N):
     for k in range(1, N):
         p1 = add_diag(i, j, k)
         p2 = add_diag(i, j, -k)
@@ -138,6 +145,72 @@ def style(b):
 
 def board_string(b):
     return '\n'.join(''.join(row) for row in b)
+
+
+def solve2(b):
+    pos = possibilities(b)
+    while True:
+        for i, j, p in iter_board(pos):
+            if p:
+                update(p[0], i, j, pos, b)
+                break
+        else:
+            break
+    return b, style(b)
+
+
+def possibilities(b):
+    N = len(b)
+    pos = [[['+', 'x', 'o'] for i in range(N)] for j in range(N)]
+    for i, j, c in iter_board(b):
+        if c == '.':
+            continue
+        update(c, i, j, pos)
+    return pos
+
+
+def update(c, i, j, pos, b=None):
+    N = len(pos)
+    if b is not None:
+        b[i, j] = c
+    if pos[i][j] != 'o':
+        rem(pos[i][j], '+')
+        rem(pos[i][j], 'x')
+    if c in ['x', 'o']:
+        for k in range(N):
+            rem(pos[k][j], 'x')
+            rem(pos[k][j], 'o')
+            rem(pos[i][k], 'x')
+            rem(pos[i][k], 'o')
+    if c in ['+', 'o']:
+        for x, y in diag_points(i, j, N):
+            rem(pos[x][y], '+')
+            rem(pos[x][y], 'o')
+
+
+def rem(arr, e):
+    if e in arr:
+        arr.remove(e)
+
+
+def iter_board(b):
+    for i, row in enumerate(b):
+        for j, cell in enumerate(row):
+            yield i, j, cell
+
+
+def diff_boards(orig_b, b):
+    N = len(b)
+    changes = []
+    for i in range(N):
+        for j in range(N):
+            orig_c = orig_b[i, j]
+            c = b[i, j]
+            if orig_c == c:
+                continue
+            else:
+                changes.append((c, i, j))
+    return changes
 
 
 if __name__ == '__main__':
