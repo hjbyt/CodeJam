@@ -117,7 +117,7 @@ def main():
             print('Case #{i}:'.format(i=i))
             solve(rows)
         except Exception:
-            print('FAILED at case #%d' % (i + 1), file=sys.stderr)
+            print('FAILED at case #%d' % i, file=sys.stderr)
             sys.stdout.flush()
             time.sleep(0.1)
             raise
@@ -153,11 +153,44 @@ def solve(rows):
     return solve_naive(rows)
 
 
+g_initials = None
+
+
 def solve_naive(rows):
-    print_rows(rows)
+    global g_initials
+    g_initials = set(iter_cells(rows)) - set('?')
     fill(rows)
-    print()
+    rows = do_solve_naive(rows)
     print_rows(rows)
+    g_initials = None
+
+
+def do_solve_naive(rows):
+    blank_point = get_blank(rows)
+    if blank_point is None:
+        return rows
+
+    for initial in g_initials:
+        finished_rows = try_with_initial(rows, blank_point, initial)
+        if finished_rows is not None:
+            return finished_rows
+
+
+def try_with_initial(rows, blank_point, inital):
+    rows = copy_rows(rows)
+    try:
+        rows[blank_point.y][blank_point.x] = inital
+        fill(rows)
+        return do_solve_naive(rows)
+    except BadAttempt:
+        return None
+
+
+def get_blank(rows):
+    for cell, point in iter_rows(rows):
+        if cell == '?':
+            return point
+    return None
 
 
 def print_rows(rows):
@@ -169,9 +202,12 @@ def copy_rows(rows):
 
 
 def fill(rows):
-    initials = set(iter_cells(rows)) - set('?')
-    for initial in initials:
+    for initial in g_initials:
         fill_for_initial(rows, initial)
+
+
+class BadAttempt(Exception):
+    pass
 
 
 def fill_for_initial(rows, initial):
@@ -184,9 +220,21 @@ def fill_for_initial(rows, initial):
 
 
 def do_fill(rows, initial, top_left, bottom_right):
+    if not check_rect(rows, initial, top_left, bottom_right):
+        raise BadAttempt()
     for y in xrange(top_left.y, bottom_right.y + 1):
         for x in xrange(top_left.x, bottom_right.x + 1):
             rows[y][x] = initial
+
+
+def check_rect(rows, initial, top_left, bottom_right):
+    for y in xrange(top_left.y, bottom_right.y + 1):
+        for x in xrange(top_left.x, bottom_right.x + 1):
+            current = rows[y][x]
+            if current != '?' and current != initial:
+                return False
+
+    return True
 
 
 class Point(namedtuple('Point', ['x', 'y'])):
