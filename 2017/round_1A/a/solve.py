@@ -4,7 +4,7 @@ import atexit
 import sys
 import time
 from contextlib import contextmanager
-from collections import Counter
+from collections import Counter, namedtuple
 
 g_verbose = False
 g_duration_counter = 1
@@ -142,7 +142,7 @@ def parse_input():
         R, C = [int(x) for x in raw_input().split()]
         rows = []
         for _ in xrange(R):
-            row = raw_input()
+            row = list(raw_input())
             rows.append(row)
         yield i, rows
 
@@ -154,8 +154,58 @@ def solve(rows):
 
 
 def solve_naive(rows):
-    pass
-    # print('\n'.join(rows))
+    print_rows(rows)
+    fill(rows)
+    print()
+    print_rows(rows)
+
+
+def print_rows(rows):
+    print('\n'.join((''.join(row) for row in rows)))
+
+
+def copy_rows(rows):
+    return [row[:] for row in rows]
+
+
+def fill(rows):
+    initials = set(iter_cells(rows)) - set('?')
+    for initial in initials:
+        fill_for_initial(rows, initial)
+
+
+def fill_for_initial(rows, initial):
+    points = [point for cell, point in iter_rows(rows) if cell == initial]
+    xs = [p.x for p in points]
+    ys = [p.y for p in points]
+    top_left = Point(x=min(xs), y=min(ys))
+    bottom_right = Point(x=max(xs), y=max(ys))
+    for y in xrange(top_left.y, bottom_right.y + 1):
+        for x in xrange(top_left.x, bottom_right.x + 1):
+            rows[y][x] = initial
+
+
+class Point(namedtuple('Point', ['x', 'y'])):
+    __slots__ = ()
+
+    def __add__(self, other):
+        return Point(self.x + other.x, self.y + other.y)
+
+    def __sub__(self, other):
+        return Point(self.x - other.x, self.y - other.y)
+
+    def __neg__(self):
+        return Point(-self.x, -self.y)
+
+
+def iter_cells(rows):
+    return (c for c, _ in iter_rows(rows))
+
+
+def iter_rows(rows):
+    for y, row in enumerate(rows):
+        for x, cell in enumerate(row):
+            yield cell, Point(x, y)
 
 
 if __name__ == '__main__':
