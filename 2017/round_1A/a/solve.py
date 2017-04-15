@@ -106,8 +106,8 @@ def main():
         atexit.register(print_measures)
 
     # TODO: XXX
-    sys.stdin = open(r'inputs/input0_example.txt')
-    sys.stdout = Tee('test_out.txt')
+    # sys.stdin = open(r'inputs/input0_example.txt')
+    # sys.stdout = Tee('test_out.txt')
     # sys.stdout = open('test_out.txt', 'w')
 
     cases = parse_input()
