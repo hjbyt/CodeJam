@@ -150,19 +150,40 @@ def parse_input():
 ####################################
 
 def solve(rows):
-    return solve_naive(rows)
+    global g_initials
+    g_initials = set(iter_cells(rows)) - set('?')
+
+    solve_greedy(rows)
+
+    g_initials = None
 
 
 g_initials = None
 
 
+def solve_greedy(rows):
+    fill(rows)
+    while True:
+        blank_point = get_blank(rows)
+        if blank_point is None:
+            break
+
+        for initial in g_initials:
+            orig = copy_rows(rows)
+            rows[blank_point.y][blank_point.x] = initial
+            try:
+                fill_for_initial(rows, initial)
+                break
+            except BadAttempt:
+                rows = orig
+
+    print_rows(rows)
+
+
 def solve_naive(rows):
-    global g_initials
-    g_initials = set(iter_cells(rows)) - set('?')
     fill(rows)
     rows = do_solve_naive(rows)
     print_rows(rows)
-    g_initials = None
 
 
 def do_solve_naive(rows):
@@ -180,7 +201,7 @@ def try_with_initial(rows, blank_point, inital):
     rows = copy_rows(rows)
     try:
         rows[blank_point.y][blank_point.x] = inital
-        fill(rows)
+        fill_for_initial(rows, inital)
         return do_solve_naive(rows)
     except BadAttempt:
         return None
@@ -220,21 +241,12 @@ def fill_for_initial(rows, initial):
 
 
 def do_fill(rows, initial, top_left, bottom_right):
-    if not check_rect(rows, initial, top_left, bottom_right):
-        raise BadAttempt()
-    for y in xrange(top_left.y, bottom_right.y + 1):
-        for x in xrange(top_left.x, bottom_right.x + 1):
-            rows[y][x] = initial
-
-
-def check_rect(rows, initial, top_left, bottom_right):
     for y in xrange(top_left.y, bottom_right.y + 1):
         for x in xrange(top_left.x, bottom_right.x + 1):
             current = rows[y][x]
             if current != '?' and current != initial:
-                return False
-
-    return True
+                raise BadAttempt()
+            rows[y][x] = initial
 
 
 class Point(namedtuple('Point', ['x', 'y'])):
