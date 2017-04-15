@@ -112,10 +112,10 @@ def main():
 
     cases = parse_input()
 
-    for i, N in cases:
+    for i, rows in cases:
         try:
-            r = solve(N)
-            print('Case #{i}: {r}'.format(i=i, r=r))
+            print('Case #{i}:'.format(i=i))
+            solve(rows)
         except Exception:
             print('FAILED at case #%d' % (i + 1), file=sys.stderr)
             sys.stdout.flush()
@@ -139,18 +139,23 @@ def parse_args():
 def parse_input():
     T = int(raw_input())
     for i in range(1, T + 1):
-        N = int(raw_input())
-        yield i, N
+        R, C = [int(x) for x in raw_input().split()]
+        rows = []
+        for _ in xrange(R):
+            row = raw_input()
+            rows.append(row)
+        yield i, rows
 
 
 ####################################
 
-def solve(N):
-    return solve_naive(N)
+def solve(rows):
+    return solve_naive(rows)
 
 
-def solve_naive(N):
-    return 0
+def solve_naive(rows):
+    pass
+    # print('\n'.join(rows))
 
 
 if __name__ == '__main__':
