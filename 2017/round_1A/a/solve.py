@@ -180,6 +180,10 @@ def fill_for_initial(rows, initial):
     ys = [p.y for p in points]
     top_left = Point(x=min(xs), y=min(ys))
     bottom_right = Point(x=max(xs), y=max(ys))
+    do_fill(rows, initial, top_left, bottom_right)
+
+
+def do_fill(rows, initial, top_left, bottom_right):
     for y in xrange(top_left.y, bottom_right.y + 1):
         for x in xrange(top_left.x, bottom_right.x + 1):
             rows[y][x] = initial
