@@ -4,7 +4,7 @@ import atexit
 import sys
 import time
 from contextlib import contextmanager
-from collections import Counter
+from collections import Counter, namedtuple
 
 g_verbose = False
 g_duration_counter = 1
@@ -106,8 +106,8 @@ def main():
         atexit.register(print_measures)
 
     # TODO: XXX
-    sys.stdin = open(r'inputs/input0_example.txt')
-    sys.stdout = Tee('test_out.txt')
+    # sys.stdin = open(r'inputs/input0_example.txt')
+    # sys.stdout = Tee('test_out.txt')
     # sys.stdout = open('test_out.txt', 'w')
 
     cases = parse_input()
@@ -142,19 +142,55 @@ def parse_input():
         D, N = [int(x) for x in raw_input().split()]
         horses = []
         for _ in xrange(N):
-            K, S = [int(x) for x in raw_input().split()]
-            horses.append((K, S))
+            k, s = [int(x) for x in raw_input().split()]
+            horses.append(Horse(pos=k, speed=s))
         yield i, D, horses
+
+
+Horse = namedtuple('Horse', 'pos speed')
 
 
 ####################################
 
 def solve(D, horses):
-    return solve_naive(D, horses)
+    horses.sort(key=lambda h: h.pos)
+    horses.append(Horse(pos=D, speed=0))
+    first_horse = horses[0]
+    rest = horses[1:]
+    segs = []
+    for horse in reversed(rest):
+        col = calc_collision(first_horse, horse)
+        if col is None:
+            continue
+        if segs and col >= segs[-1][0]:
+            continue
+        else:
+            segs.append((col, horse))
+
+    segs.reverse()
+    t = 0
+    speed = first_horse.speed
+    last_pos = first_horse.pos
+    for col, horse in segs:
+        d = col - last_pos
+        t += d / speed
+        speed = horse.speed
+        last_pos = col
+    return D / t
 
 
-def solve_naive(D, horses):
-    return 0
+
+
+def calc_collision(h1, h2):
+    return calc_collision_point__(h1.pos, h1.speed, h2.pos, h2.speed)
+
+
+def calc_collision_point__(s1, k1, s2, k2):
+    if s1 > s2:
+        s1, k1, s2, k2 = s2, k2, s1, k1
+    if k1 < k2 or (k1 == k2 and s1 < s2):
+        return None
+    return (s2 * k1 - s1 * k2) / float(k1 - k2)
 
 
 if __name__ == '__main__':
