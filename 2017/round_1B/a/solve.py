@@ -112,9 +112,9 @@ def main():
 
     cases = parse_input()
 
-    for i, N in cases:
+    for i, D, horses in cases:
         try:
-            r = solve(N)
+            r = solve(D, horses)
             print('Case #{i}: {r}'.format(i=i, r=r))
         except Exception:
             print('FAILED at case #%d' % (i + 1), file=sys.stderr)
@@ -139,17 +139,21 @@ def parse_args():
 def parse_input():
     T = int(raw_input())
     for i in range(1, T + 1):
-        N = int(raw_input())
-        yield i, N
+        D, N = [int(x) for x in raw_input().split()]
+        horses = []
+        for _ in xrange(N):
+            K, S = [int(x) for x in raw_input().split()]
+            horses.append((K, S))
+        yield i, D, horses
 
 
 ####################################
 
-def solve(N):
-    return solve_naive(N)
+def solve(D, horses):
+    return solve_naive(D, horses)
 
 
-def solve_naive(N):
+def solve_naive(D, horses):
     return 0
 
 
